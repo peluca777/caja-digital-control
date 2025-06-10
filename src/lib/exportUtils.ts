@@ -2,7 +2,7 @@
 import { Transaction } from './types';
 
 export const exportToExcel = (transactions: Transaction[]) => {
-  // Agrupar por medio de pago
+  // Agrupar transacciones por método de pago
   const paymentMethods = ['Efectivo', 'Transferencia', 'Tarjeta', 'Débito', 'Otro'];
   const paymentTotals = paymentMethods.reduce((acc, method) => {
     const income = transactions
@@ -25,37 +25,69 @@ export const exportToExcel = (transactions: Transaction[]) => {
 
   const finalBalance = totalIncome - totalExpense;
 
-  // Crear contenido CSV con formato mejorado
-  const headers = ['Hora', 'Tipo', 'Medio de Pago', 'Concepto', 'Monto', 'Observaciones', 'Usuario'];
-  const dataRows = transactions.map(t => [
+  // Función para formatear moneda
+  const formatCurrency = (amount: number) => {
+    return `$${amount.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  // Crear encabezado del reporte
+  const reportHeader = [
+    ['CONTROL DE CAJA DIARIA'],
+    [`Fecha: ${new Date().toLocaleDateString('es-AR')}`],
+    [''],
+    ['DETALLE DE MOVIMIENTOS'],
+    ['']
+  ];
+
+  // Crear encabezados de la tabla
+  const headers = ['Hora', 'Tipo', 'Método de Pago', 'Descripción', 'Importe', 'Observaciones', 'Usuario'];
+  
+  // Ordenar transacciones por hora
+  const sortedTransactions = [...transactions].sort((a, b) => a.time.localeCompare(b.time));
+  
+  // Crear filas de datos
+  const dataRows = sortedTransactions.map(t => [
     t.time,
     t.type === 'income' ? 'Ingreso' : 'Egreso',
     t.paymentMethod || 'Efectivo',
     `"${t.concept}"`,
-    t.amount.toString(),
+    formatCurrency(t.amount),
     `"${t.observations || ''}"`,
     `"${t.userName}"`
   ]);
 
-  // Agregar resumen al final
-  const summaryRows = [
+  // Crear resumen por método de pago
+  const paymentSummary = [
     [''],
-    ['RESUMEN DE MOVIMIENTOS'],
+    ['RESUMEN POR MÉTODO DE PAGO'],
+    ['Método', 'Total']
+  ];
+  
+  paymentMethods.forEach(method => {
+    if (paymentTotals[method] !== 0) {
+      paymentSummary.push([method, formatCurrency(paymentTotals[method])]);
+    }
+  });
+
+  // Crear totales generales
+  const generalTotals = [
     [''],
-    ['Totales por medio de pago:'],
-    ...paymentMethods.map(method => [`${method}:`, `$${paymentTotals[method].toLocaleString('es-AR')}`]),
+    ['TOTALES GENERALES'],
+    ['Concepto', 'Importe'],
+    ['Total Ingresos', formatCurrency(totalIncome)],
+    ['Total Egresos', formatCurrency(totalExpense)],
     [''],
-    ['Totales generales:'],
-    [`Total Ingresos:`, `$${totalIncome.toLocaleString('es-AR')}`],
-    [`Total Egresos:`, `$${totalExpense.toLocaleString('es-AR')}`],
-    [`Saldo Final:`, `$${finalBalance.toLocaleString('es-AR')}`]
+    ['SALDO FINAL', formatCurrency(finalBalance)]
   ];
 
+  // Combinar todas las secciones
   const csvContent = [
-    headers.join(','),
-    ...dataRows.map(row => row.join(',')),
-    ...summaryRows.map(row => row.join(','))
-  ].join('\n');
+    ...reportHeader,
+    headers,
+    ...dataRows,
+    ...paymentSummary,
+    ...generalTotals
+  ].map(row => row.join(',')).join('\n');
 
   // Crear y descargar archivo
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -68,38 +100,121 @@ export const exportToExcel = (transactions: Transaction[]) => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
 
 export const exportToPDF = (transactions: Transaction[]) => {
-  // Crear contenido HTML para PDF
+  const formatCurrency = (amount: number) => {
+    return `$${amount.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  // Calcular totales
+  const totalIncome = transactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0);
+  
+  const totalExpense = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const finalBalance = totalIncome - totalExpense;
+
+  // Crear contenido HTML mejorado para PDF
   const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Movimientos del Día</title>
+        <title>Control de Caja Diaria</title>
         <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; color: #1f2937; }
-            h1 { color: #22c55e; text-align: center; margin-bottom: 30px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #e5e7eb; padding: 12px 8px; text-align: left; }
-            th { background-color: #22c55e; color: white; font-weight: 600; }
-            .income { color: #059669; font-weight: 600; }
-            .expense { color: #dc2626; font-weight: 600; }
-            tr:nth-child(even) { background-color: #f9fafb; }
-            .summary { margin-top: 30px; background: #f8fafc; padding: 20px; border-radius: 8px; }
+            body { 
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+              margin: 20px; 
+              color: #1a202c; 
+              line-height: 1.4;
+            }
+            .header { 
+              text-align: center; 
+              margin-bottom: 30px; 
+              border-bottom: 2px solid #48bb78; 
+              padding-bottom: 15px; 
+            }
+            h1 { 
+              color: #48bb78; 
+              margin: 0; 
+              font-size: 24px; 
+              font-weight: 600; 
+            }
+            .date { 
+              color: #4a5568; 
+              font-size: 14px; 
+              margin-top: 5px; 
+            }
+            table { 
+              width: 100%; 
+              border-collapse: collapse; 
+              margin: 20px 0; 
+              font-size: 12px; 
+            }
+            th, td { 
+              border: 1px solid #e2e8f0; 
+              padding: 10px 8px; 
+              text-align: left; 
+            }
+            th { 
+              background-color: #48bb78; 
+              color: white; 
+              font-weight: 600; 
+              text-align: center; 
+            }
+            .income { 
+              color: #38a169; 
+              font-weight: 600; 
+            }
+            .expense { 
+              color: #e53e3e; 
+              font-weight: 600; 
+            }
+            tr:nth-child(even) { 
+              background-color: #f7fafc; 
+            }
+            .summary { 
+              margin-top: 30px; 
+              background: #f8f9fa; 
+              padding: 20px; 
+              border-radius: 8px; 
+              border: 1px solid #e2e8f0; 
+            }
+            .summary h3 { 
+              color: #2d3748; 
+              margin-top: 0; 
+              border-bottom: 1px solid #cbd5e0; 
+              padding-bottom: 10px; 
+            }
+            .total-final { 
+              font-size: 16px; 
+              font-weight: bold; 
+              color: #2d3748; 
+              background-color: #edf2f7; 
+              padding: 10px; 
+              border-radius: 5px; 
+              margin-top: 15px; 
+            }
         </style>
     </head>
     <body>
-        <h1>Control de Caja - Movimientos del Día</h1>
-        <p><strong>Fecha:</strong> ${new Date().toLocaleDateString('es-AR')}</p>
+        <div class="header">
+            <h1>Control de Caja Diaria</h1>
+            <div class="date">Fecha: ${new Date().toLocaleDateString('es-AR')}</div>
+        </div>
+        
         <table>
             <thead>
                 <tr>
                     <th>Hora</th>
                     <th>Tipo</th>
-                    <th>Medio de Pago</th>
-                    <th>Concepto</th>
-                    <th>Monto</th>
+                    <th>Método de Pago</th>
+                    <th>Descripción</th>
+                    <th>Importe</th>
                     <th>Observaciones</th>
                     <th>Usuario</th>
                 </tr>
@@ -107,22 +222,25 @@ export const exportToPDF = (transactions: Transaction[]) => {
             <tbody>
                 ${transactions.map(t => `
                     <tr>
-                        <td>${t.time}</td>
-                        <td class="${t.type}">${t.type === 'income' ? 'Ingreso' : 'Egreso'}</td>
-                        <td>${t.paymentMethod || 'Efectivo'}</td>
+                        <td style="text-align: center;">${t.time}</td>
+                        <td class="${t.type}" style="text-align: center;">${t.type === 'income' ? 'Ingreso' : 'Egreso'}</td>
+                        <td style="text-align: center;">${t.paymentMethod || 'Efectivo'}</td>
                         <td>${t.concept}</td>
-                        <td>$${t.amount.toLocaleString('es-AR')}</td>
+                        <td style="text-align: right; font-weight: 600;">${formatCurrency(t.amount)}</td>
                         <td>${t.observations || '-'}</td>
                         <td>${t.userName}</td>
                     </tr>
                 `).join('')}
             </tbody>
         </table>
+        
         <div class="summary">
             <h3>Resumen de Totales</h3>
-            <p><strong>Total Ingresos:</strong> $${transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0).toLocaleString('es-AR')}</p>
-            <p><strong>Total Egresos:</strong> $${transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0).toLocaleString('es-AR')}</p>
-            <p><strong>Saldo Final:</strong> $${(transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0) - transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)).toLocaleString('es-AR')}</p>
+            <p><strong>Total Ingresos:</strong> <span style="color: #38a169;">${formatCurrency(totalIncome)}</span></p>
+            <p><strong>Total Egresos:</strong> <span style="color: #e53e3e;">${formatCurrency(totalExpense)}</span></p>
+            <div class="total-final">
+                <strong>Saldo Final: ${formatCurrency(finalBalance)}</strong>
+            </div>
         </div>
     </body>
     </html>
@@ -139,4 +257,5 @@ export const exportToPDF = (transactions: Transaction[]) => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
