@@ -3,99 +3,97 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
-
 @layer base {
   :root {
-    --background: 15 23 42;
-    --foreground: 248 250 252;
+    --background: 240 249 255;
+    --foreground: 0 0 0;
 
-    --card: 30 41 59;
-    --card-foreground: 248 250 252;
+    --card: 255 255 255;
+    --card-foreground: 0 0 0;
 
-    --popover: 30 41 59;
-    --popover-foreground: 248 250 252;
+    --popover: 255 255 255;
+    --popover-foreground: 0 0 0;
 
-    --primary: 59 130 246;
-    --primary-foreground: 255 255 255;
+    --primary: 37 99 235;
+    --primary-foreground: 0 0 0;
 
-    --secondary: 71 85 105;
-    --secondary-foreground: 203 213 225;
+    --secondary: 147 197 253;
+    --secondary-foreground: 0 0 0;
 
-    --muted: 51 65 85;
-    --muted-foreground: 148 163 184;
+    --muted: 219 234 254;
+    --muted-foreground: 0 0 0;
 
-    --accent: 14 165 233;
-    --accent-foreground: 255 255 255;
+    --accent: 59 130 246;
+    --accent-foreground: 0 0 0;
 
-    --destructive: 239 68 68;
+    --destructive: 220 38 38;
     --destructive-foreground: 255 255 255;
 
     --success: 34 197 94;
-    --success-foreground: 255 255 255;
+    --success-foreground: 0 0 0;
 
     --warning: 245 158 11;
-    --warning-foreground: 255 255 255;
+    --warning-foreground: 0 0 0;
 
-    --border: 71 85 105;
-    --input: 71 85 105;
-    --ring: 59 130 246;
+    --border: 191 219 254;
+    --input: 191 219 254;
+    --ring: 37 99 235;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 15 23 42;
-    --sidebar-foreground: 248 250 252;
-    --sidebar-primary: 59 130 246;
-    --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 51 65 85;
-    --sidebar-accent-foreground: 203 213 225;
-    --sidebar-border: 71 85 105;
-    --sidebar-ring: 59 130 246;
+    --sidebar-background: 240 249 255;
+    --sidebar-foreground: 0 0 0;
+    --sidebar-primary: 37 99 235;
+    --sidebar-primary-foreground: 0 0 0;
+    --sidebar-accent: 219 234 254;
+    --sidebar-accent-foreground: 0 0 0;
+    --sidebar-border: 191 219 254;
+    --sidebar-ring: 37 99 235;
   }
 
   .dark {
-    --background: 15 23 42;
-    --foreground: 248 250 252;
+    --background: 240 249 255;
+    --foreground: 0 0 0;
 
-    --card: 30 41 59;
-    --card-foreground: 248 250 252;
+    --card: 255 255 255;
+    --card-foreground: 0 0 0;
 
-    --popover: 30 41 59;
-    --popover-foreground: 248 250 252;
+    --popover: 255 255 255;
+    --popover-foreground: 0 0 0;
 
-    --primary: 59 130 246;
-    --primary-foreground: 255 255 255;
+    --primary: 37 99 235;
+    --primary-foreground: 0 0 0;
 
-    --secondary: 71 85 105;
-    --secondary-foreground: 203 213 225;
+    --secondary: 147 197 253;
+    --secondary-foreground: 0 0 0;
 
-    --muted: 51 65 85;
-    --muted-foreground: 148 163 184;
+    --muted: 219 234 254;
+    --muted-foreground: 0 0 0;
 
-    --accent: 14 165 233;
-    --accent-foreground: 255 255 255;
+    --accent: 59 130 246;
+    --accent-foreground: 0 0 0;
 
-    --destructive: 239 68 68;
+    --destructive: 220 38 38;
     --destructive-foreground: 255 255 255;
 
     --success: 34 197 94;
-    --success-foreground: 255 255 255;
+    --success-foreground: 0 0 0;
 
     --warning: 245 158 11;
-    --warning-foreground: 255 255 255;
+    --warning-foreground: 0 0 0;
 
-    --border: 71 85 105;
-    --input: 71 85 105;
-    --ring: 59 130 246;
+    --border: 191 219 254;
+    --input: 191 219 254;
+    --ring: 37 99 235;
 
-    --sidebar-background: 15 23 42;
-    --sidebar-foreground: 248 250 252;
-    --sidebar-primary: 59 130 246;
-    --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 51 65 85;
-    --sidebar-accent-foreground: 203 213 225;
-    --sidebar-border: 71 85 105;
-    --sidebar-ring: 59 130 246;
+    --sidebar-background: 240 249 255;
+    --sidebar-foreground: 0 0 0;
+    --sidebar-primary: 37 99 235;
+    --sidebar-primary-foreground: 0 0 0;
+    --sidebar-accent: 219 234 254;
+    --sidebar-accent-foreground: 0 0 0;
+    --sidebar-border: 191 219 254;
+    --sidebar-ring: 37 99 235;
   }
 }
 
@@ -111,7 +109,6 @@
 }
 
 @layer utilities {
-  /* Animaciones principales */
   .animate-fade-in {
     animation: fadeIn 0.6s ease-out;
   }
@@ -137,7 +134,6 @@
     background-size: 400% 400%;
   }
 
-  /* Transiciones suaves */
   .transition-all-smooth {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -146,16 +142,14 @@
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Efectos de hover */
   .hover-lift {
-    @apply transition-transform-smooth hover:scale-105 hover:shadow-lg hover:shadow-primary/20;
+    @apply transition-transform-smooth hover:scale-105 hover:shadow-lg;
   }
 
   .hover-glow {
-    @apply transition-all-smooth hover:shadow-lg hover:shadow-accent/30;
+    @apply transition-all-smooth hover:shadow-lg;
   }
 
-  /* Spinner personalizado */
   .spinner {
     animation: spin 1s linear infinite;
   }
@@ -235,12 +229,10 @@
     }
   }
 
-  /* Clases utilitarias para animaciones progresivas */
   .stagger-children > * {
     animation-delay: calc(var(--stagger-delay, 0.1s) * var(--stagger-index, 0));
   }
 
-  /* Fondos animados */
   .bg-animated-gradient {
     background: linear-gradient(-45deg, 
       hsl(var(--background)), 
@@ -250,7 +242,6 @@
     );
   }
 
-  /* Efectos de carga */
   .loading-shimmer {
     background: linear-gradient(90deg, 
       hsl(var(--muted)) 25%, 
@@ -271,10 +262,8 @@
   }
 }
 
-/* Fuentes */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Scrollbar personalizado */
 ::-webkit-scrollbar {
   width: 8px;
 }
