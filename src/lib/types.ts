@@ -30,6 +30,7 @@ export interface Transaction {
   time: string;
   userId: string;
   userName: string;
+  paymentMethod?: string;
 }
 
 export interface DashboardStats {
