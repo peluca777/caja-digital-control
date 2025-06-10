@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ChartBar, CashRegister, List, History, Settings } from 'lucide-react';
+import { ChartBar, Coins, List, History, Settings } from 'lucide-react';
 
 interface NavigationProps {
   currentView: string;
@@ -12,7 +12,7 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, userRole }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', roles: ['Cajero', 'Supervisor'], icon: ChartBar },
-    { id: 'cash-register', label: 'Control de Caja', roles: ['Cajero', 'Supervisor'], icon: CashRegister },
+    { id: 'cash-register', label: 'Control de Caja', roles: ['Cajero', 'Supervisor'], icon: Coins },
     { id: 'transactions', label: 'Movimientos', roles: ['Cajero', 'Supervisor'], icon: List },
     { id: 'history', label: 'Historial', roles: ['Supervisor'], icon: History },
     { id: 'settings', label: 'Configuración', roles: ['Supervisor'], icon: Settings },
