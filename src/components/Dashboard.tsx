@@ -1,31 +1,28 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DashboardStats } from '@/lib/types';
-
 interface DashboardProps {
   stats: DashboardStats;
 }
-
-const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
+const Dashboard: React.FC<DashboardProps> = ({
+  stats
+}) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
       currency: 'ARS'
     }).format(amount);
   };
-
-  return (
-    <div className="space-y-6 animate-fade-in">
+  return <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold text-foreground">Dashboard</h2>
-        <div className="text-sm text-muted-foreground bg-secondary px-3 py-1 rounded-lg border border-border">
+        <div className="text-sm text-muted-foreground px-3 py-1 rounded-lg border border-border bg-gray-500">
           {new Date().toLocaleDateString('es-AR', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })}
         </div>
       </div>
 
@@ -33,7 +30,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
         <Card className="animate-slide-up bg-card border-border card-shadow hover:card-shadow-hover transition-all-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Monto Inicial</CardTitle>
-            <div className="h-3 w-3 bg-muted rounded-full"></div>
+            <div className="h-3 w-3 rounded-full bg-gray-50"></div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold text-foreground">
@@ -42,7 +39,9 @@ const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
           </CardContent>
         </Card>
 
-        <Card className="animate-slide-up bg-card border-border card-shadow hover:card-shadow-hover transition-all-smooth" style={{ animationDelay: '0.05s' }}>
+        <Card className="animate-slide-up bg-card border-border card-shadow hover:card-shadow-hover transition-all-smooth" style={{
+        animationDelay: '0.05s'
+      }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Ingresos</CardTitle>
             <div className="h-3 w-3 bg-success rounded-full"></div>
@@ -57,10 +56,12 @@ const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
           </CardContent>
         </Card>
 
-        <Card className="animate-slide-up bg-card border-border card-shadow hover:card-shadow-hover transition-all-smooth" style={{ animationDelay: '0.1s' }}>
+        <Card className="animate-slide-up bg-card border-border card-shadow hover:card-shadow-hover transition-all-smooth" style={{
+        animationDelay: '0.1s'
+      }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Egresos</CardTitle>
-            <div className="h-3 w-3 bg-destructive rounded-full"></div>
+            <div className="h-3 w-3 rounded-full bg-gray-50"></div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold text-destructive">
@@ -69,7 +70,9 @@ const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
           </CardContent>
         </Card>
 
-        <Card className="animate-slide-up bg-card border-border card-shadow hover:card-shadow-hover transition-all-smooth" style={{ animationDelay: '0.15s' }}>
+        <Card className="animate-slide-up bg-card border-border card-shadow hover:card-shadow-hover transition-all-smooth" style={{
+        animationDelay: '0.15s'
+      }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Saldo Actual</CardTitle>
             <div className={`h-3 w-3 rounded-full ${stats.balance >= 0 ? 'bg-success' : 'bg-destructive'}`}></div>
@@ -81,8 +84,6 @@ const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Dashboard;
