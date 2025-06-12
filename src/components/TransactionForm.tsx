@@ -20,6 +20,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
   const [type, setType] = useState<'income' | 'expense'>('income');
   const [amount, setAmount] = useState<string>('');
   const [concept, setConcept] = useState<string>('');
+  const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [observations, setObservations] = useState<string>('');
   const { toast } = useToast();
   const user = getCurrentUser();
@@ -48,12 +49,22 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
       return;
     }
 
+    if (!paymentMethod) {
+      toast({
+        title: "Error",
+        description: "Por favor selecciona un método de pago",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const now = new Date();
     const transaction: Omit<Transaction, 'id'> = {
       cashRegisterId,
       type,
       amount: amountNum,
       concept: concept.trim(),
+      paymentMethod,
       observations: observations.trim(),
       date: now.toISOString().split('T')[0],
       time: now.toLocaleTimeString('es-AR'),
@@ -68,6 +79,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
       tipo: type === 'income' ? 'INGRESO' : 'EGRESO',
       monto: amountNum,
       concepto: concept,
+      metodo_pago: paymentMethod,
       observaciones: observations,
       fecha: transaction.date,
       hora: transaction.time,
@@ -77,6 +89,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
     // Reset form
     setAmount('');
     setConcept('');
+    setPaymentMethod('');
     setObservations('');
     
     toast({
@@ -86,30 +99,30 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
   };
 
   return (
-    <Card className="animate-slide-up">
-      <CardHeader>
-        <CardTitle>Registrar Movimiento</CardTitle>
-        <CardDescription>
+    <Card className="animate-slide-up bg-card border-border card-shadow hover:card-shadow-hover transition-all-smooth">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-foreground text-lg font-semibold">Registrar Movimiento</CardTitle>
+        <CardDescription className="text-muted-foreground">
           Agrega un nuevo ingreso o egreso
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label>Tipo de Movimiento</Label>
+            <Label className="text-foreground font-medium">Tipo de Movimiento</Label>
             <Select value={type} onValueChange={(value: 'income' | 'expense') => setType(value)}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-card border-border text-foreground focus:border-primary/50 h-11 rounded-xl">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="income">Ingreso</SelectItem>
-                <SelectItem value="expense">Egreso</SelectItem>
+              <SelectContent className="bg-card border-border card-shadow z-50">
+                <SelectItem value="income" className="text-foreground">Ingreso</SelectItem>
+                <SelectItem value="expense" className="text-foreground">Egreso</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="amount">Monto</Label>
+            <Label htmlFor="amount" className="text-foreground font-medium">Monto</Label>
             <Input
               id="amount"
               type="number"
@@ -117,33 +130,53 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
               placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              className="bg-card border-border text-foreground focus:border-primary/50 h-11 rounded-xl"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="concept">Concepto</Label>
+            <Label htmlFor="concept" className="text-foreground font-medium">Concepto</Label>
             <Input
               id="concept"
               placeholder="Descripción del movimiento"
               value={concept}
               onChange={(e) => setConcept(e.target.value)}
+              className="bg-card border-border text-foreground focus:border-primary/50 h-11 rounded-xl"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="observations">Observaciones (Opcional)</Label>
+            <Label className="text-foreground font-medium">Método de Pago *</Label>
+            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+              <SelectTrigger className="bg-card border-border text-foreground focus:border-primary/50 h-11 rounded-xl">
+                <SelectValue placeholder="Seleccionar método de pago" />
+              </SelectTrigger>
+              <SelectContent className="bg-card border-border card-shadow z-50">
+                <SelectItem value="Efectivo" className="text-foreground">Efectivo</SelectItem>
+                <SelectItem value="Transferencia" className="text-foreground">Transferencia</SelectItem>
+                <SelectItem value="Tarjeta" className="text-foreground">Tarjeta</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="observations" className="text-foreground font-medium">Observaciones (Opcional)</Label>
             <Textarea
               id="observations"
               placeholder="Detalles adicionales..."
               value={observations}
               onChange={(e) => setObservations(e.target.value)}
+              className="bg-card border-border text-foreground focus:border-primary/50 rounded-xl resize-none"
               rows={3}
             />
           </div>
 
-          <Button type="submit" className="w-full">
+          <Button 
+            type="submit" 
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11 rounded-xl font-medium transition-all-smooth hover:scale-[1.02] card-shadow hover:card-shadow-hover"
+          >
             Registrar {type === 'income' ? 'Ingreso' : 'Egreso'}
           </Button>
         </form>

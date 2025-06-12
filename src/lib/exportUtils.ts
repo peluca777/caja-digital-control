@@ -1,15 +1,19 @@
-
 import { Transaction } from './types';
 
 export const exportToExcel = (transactions: Transaction[]) => {
+  // Función para formatear moneda
+  const formatCurrency = (amount: number) => {
+    return `$${amount.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
   // Agrupar transacciones por método de pago
-  const paymentMethods = ['Efectivo', 'Transferencia', 'Tarjeta', 'Débito', 'Otro'];
+  const paymentMethods = ['Efectivo', 'Transferencia', 'Tarjeta'];
   const paymentTotals = paymentMethods.reduce((acc, method) => {
     const income = transactions
-      .filter(t => t.type === 'income' && (t.paymentMethod || 'Efectivo') === method)
+      .filter(t => t.type === 'income' && t.paymentMethod === method)
       .reduce((sum, t) => sum + t.amount, 0);
     const expense = transactions
-      .filter(t => t.type === 'expense' && (t.paymentMethod || 'Efectivo') === method)
+      .filter(t => t.type === 'expense' && t.paymentMethod === method)
       .reduce((sum, t) => sum + t.amount, 0);
     acc[method] = income - expense;
     return acc;
@@ -25,14 +29,9 @@ export const exportToExcel = (transactions: Transaction[]) => {
 
   const finalBalance = totalIncome - totalExpense;
 
-  // Función para formatear moneda
-  const formatCurrency = (amount: number) => {
-    return `$${amount.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
   // Crear encabezado del reporte
   const reportHeader = [
-    ['CONTROL DE CAJA DIARIA'],
+    ['PLANTILLA DE CAJA DIARIA'],
     [`Fecha: ${new Date().toLocaleDateString('es-AR')}`],
     [''],
     ['DETALLE DE MOVIMIENTOS'],
@@ -40,53 +39,42 @@ export const exportToExcel = (transactions: Transaction[]) => {
   ];
 
   // Crear encabezados de la tabla
-  const headers = ['Hora', 'Tipo', 'Método de Pago', 'Descripción', 'Importe', 'Observaciones', 'Usuario'];
+  const headers = ['Fecha', 'Concepto', 'Monto', 'Método de Pago'];
   
   // Ordenar transacciones por hora
   const sortedTransactions = [...transactions].sort((a, b) => a.time.localeCompare(b.time));
   
-  // Crear filas de datos
+  // Crear filas de datos con formato simplificado
   const dataRows = sortedTransactions.map(t => [
-    t.time,
-    t.type === 'income' ? 'Ingreso' : 'Egreso',
-    t.paymentMethod || 'Efectivo',
+    `${t.date} ${t.time}`,
     `"${t.concept}"`,
     formatCurrency(t.amount),
-    `"${t.observations || ''}"`,
-    `"${t.userName}"`
+    t.paymentMethod || 'Efectivo'
   ]);
 
-  // Crear resumen por método de pago
+  // Crear resumen de totales por método de pago
   const paymentSummary = [
     [''],
-    ['RESUMEN POR MÉTODO DE PAGO'],
-    ['Método', 'Total']
+    ['TOTALES POR MÉTODO DE PAGO'],
+    ['']
   ];
   
   paymentMethods.forEach(method => {
     if (paymentTotals[method] !== 0) {
-      paymentSummary.push([method, formatCurrency(paymentTotals[method])]);
+      paymentSummary.push([`- ${method}:`, formatCurrency(paymentTotals[method])]);
     }
   });
 
-  // Crear totales generales
-  const generalTotals = [
-    [''],
-    ['TOTALES GENERALES'],
-    ['Concepto', 'Importe'],
-    ['Total Ingresos', formatCurrency(totalIncome)],
-    ['Total Egresos', formatCurrency(totalExpense)],
-    [''],
-    ['SALDO FINAL', formatCurrency(finalBalance)]
-  ];
+  // Agregar total general
+  paymentSummary.push(['']);
+  paymentSummary.push(['TOTAL GENERAL:', formatCurrency(finalBalance)]);
 
   // Combinar todas las secciones
   const csvContent = [
     ...reportHeader,
     headers,
     ...dataRows,
-    ...paymentSummary,
-    ...generalTotals
+    ...paymentSummary
   ].map(row => row.join(',')).join('\n');
 
   // Crear y descargar archivo
@@ -210,25 +198,19 @@ export const exportToPDF = (transactions: Transaction[]) => {
         <table>
             <thead>
                 <tr>
-                    <th>Hora</th>
-                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Concepto</th>
+                    <th>Monto</th>
                     <th>Método de Pago</th>
-                    <th>Descripción</th>
-                    <th>Importe</th>
-                    <th>Observaciones</th>
-                    <th>Usuario</th>
                 </tr>
             </thead>
             <tbody>
                 ${transactions.map(t => `
                     <tr>
-                        <td style="text-align: center;">${t.time}</td>
-                        <td class="${t.type}" style="text-align: center;">${t.type === 'income' ? 'Ingreso' : 'Egreso'}</td>
-                        <td style="text-align: center;">${t.paymentMethod || 'Efectivo'}</td>
+                        <td style="text-align: center;">${t.date} ${t.time}</td>
                         <td>${t.concept}</td>
                         <td style="text-align: right; font-weight: 600;">${formatCurrency(t.amount)}</td>
-                        <td>${t.observations || '-'}</td>
-                        <td>${t.userName}</td>
+                        <td style="text-align: center;">${t.paymentMethod || 'Efectivo'}</td>
                     </tr>
                 `).join('')}
             </tbody>
