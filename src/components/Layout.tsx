@@ -22,7 +22,7 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <header className="bg-white border-b border-border sticky top-0 z-50 card-shadow">
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
