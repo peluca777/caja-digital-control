@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { FileSpreadsheet, Download, Search } from 'lucide-react';
 import { Transaction } from '@/lib/types';
-import { exportToExcel, exportToPDF } from '@/lib/exportUtils';
+import { exportToPDF } from '@/lib/exportUtils';
+import { sendToGoogleSheets } from '@/lib/googleSheets';
 import { useToast } from '@/hooks/use-toast';
 
 interface TransactionHistoryProps {
@@ -35,12 +36,28 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
     return matchesFilter && matchesSearch;
   });
 
-  const handleExportExcel = () => {
-    exportToExcel(filteredTransactions);
-    toast({
-      title: "✓ Exportación exitosa",
-      description: `Archivo Excel descargado: Caja_Diaria_${new Date().toLocaleDateString('es-AR').replace(/\//g, '-')}.xlsx`,
-    });
+  const handleExportGoogleSheets = async () => {
+    try {
+      const datos = filteredTransactions.map(transaction => ({
+        fecha: transaction.date,
+        monto: transaction.amount,
+        concepto: transaction.concept,
+        metodo_pago: transaction.paymentMethod || 'Efectivo'
+      }));
+
+      await sendToGoogleSheets({ datos }, 'export_transactions');
+      
+      toast({
+        title: "✓ Exportación exitosa",
+        description: "¡Datos exportados exitosamente a Google Sheets!",
+      });
+    } catch (error) {
+      toast({
+        title: "✗ Error en la exportación",
+        description: "Error al exportar los datos, intentá nuevamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleExportPDF = () => {
@@ -63,12 +80,12 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
               </CardDescription>
             </div>
             <Button 
-              onClick={handleExportExcel}
+              onClick={handleExportGoogleSheets}
               className="bg-primary hover:bg-primary/90 text-primary-foreground card-shadow hover:card-shadow-hover transition-all-smooth hover-lift"
               size="sm"
             >
               <FileSpreadsheet className="w-4 h-4 mr-2" />
-              Exportar Excel
+              Exportar a Google Sheets
             </Button>
           </div>
         </CardHeader>
