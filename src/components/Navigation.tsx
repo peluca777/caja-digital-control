@@ -21,7 +21,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, user
   const availableItems = menuItems.filter(item => item.roles.includes(userRole));
 
   return (
-    <nav className="flex flex-wrap gap-3 mb-6 animate-slide-up">
+    <nav className="flex flex-wrap gap-3 mb-8 animate-slide-up">
       {availableItems.map((item, index) => {
         const IconComponent = item.icon;
         return (
@@ -31,10 +31,10 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, user
             onClick={() => onViewChange(item.id)}
             size="sm"
             className={`
-              transition-all-smooth hover-lift
+              transition-all-smooth hover-lift rounded-2xl px-4 py-2.5
               ${currentView === item.id 
-                ? 'bg-primary hover:bg-primary/90 text-primary-foreground card-shadow border-primary' 
-                : 'bg-card border-border text-foreground hover:bg-secondary hover:border-accent/50 card-shadow hover:card-shadow-hover'
+                ? 'bg-primary hover:bg-primary/90 text-primary-foreground card-shadow-hover border-primary' 
+                : 'bg-white border-border text-foreground hover:bg-muted hover:border-primary/30 card-shadow'
               }
             `}
             style={{ 

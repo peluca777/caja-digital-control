@@ -99,7 +99,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
   };
 
   return (
-    <Card className="animate-slide-up bg-card border-border card-shadow hover:card-shadow-hover transition-all-smooth">
+    <Card className="animate-slide-up bg-white border-border card-shadow hover:card-shadow-hover transition-all-smooth rounded-2xl">
       <CardHeader className="pb-4">
         <CardTitle className="text-foreground text-lg font-semibold">Registrar Movimiento</CardTitle>
         <CardDescription className="text-muted-foreground">
@@ -107,16 +107,16 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label className="text-foreground font-medium">Tipo de Movimiento</Label>
             <Select value={type} onValueChange={(value: 'income' | 'expense') => setType(value)}>
-              <SelectTrigger className="bg-card border-border text-foreground focus:border-primary/50 h-11 rounded-xl">
+              <SelectTrigger className="bg-white border-border text-foreground focus:border-primary/50 h-12 rounded-2xl">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-card border-border card-shadow z-50">
-                <SelectItem value="income" className="text-foreground">Ingreso</SelectItem>
-                <SelectItem value="expense" className="text-foreground">Egreso</SelectItem>
+              <SelectContent className="bg-white border-border card-shadow z-50 rounded-xl">
+                <SelectItem value="income" className="text-foreground rounded-xl">Ingreso</SelectItem>
+                <SelectItem value="expense" className="text-foreground rounded-xl">Egreso</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -130,7 +130,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
               placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="bg-card border-border text-foreground focus:border-primary/50 h-11 rounded-xl"
+              className="bg-white border-border text-foreground focus:border-primary/50 h-12 rounded-2xl"
               required
             />
           </div>
@@ -142,7 +142,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
               placeholder="Descripción del movimiento"
               value={concept}
               onChange={(e) => setConcept(e.target.value)}
-              className="bg-card border-border text-foreground focus:border-primary/50 h-11 rounded-xl"
+              className="bg-white border-border text-foreground focus:border-primary/50 h-12 rounded-2xl"
               required
             />
           </div>
@@ -150,13 +150,13 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
           <div className="space-y-2">
             <Label className="text-foreground font-medium">Método de Pago *</Label>
             <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-              <SelectTrigger className="bg-card border-border text-foreground focus:border-primary/50 h-11 rounded-xl">
+              <SelectTrigger className="bg-white border-border text-foreground focus:border-primary/50 h-12 rounded-2xl">
                 <SelectValue placeholder="Seleccionar método de pago" />
               </SelectTrigger>
-              <SelectContent className="bg-card border-border card-shadow z-50">
-                <SelectItem value="Efectivo" className="text-foreground">Efectivo</SelectItem>
-                <SelectItem value="Transferencia" className="text-foreground">Transferencia</SelectItem>
-                <SelectItem value="Tarjeta" className="text-foreground">Tarjeta</SelectItem>
+              <SelectContent className="bg-white border-border card-shadow z-50 rounded-xl">
+                <SelectItem value="Efectivo" className="text-foreground rounded-xl">Efectivo</SelectItem>
+                <SelectItem value="Transferencia" className="text-foreground rounded-xl">Transferencia</SelectItem>
+                <SelectItem value="Tarjeta" className="text-foreground rounded-xl">Tarjeta</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -168,14 +168,14 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
               placeholder="Detalles adicionales..."
               value={observations}
               onChange={(e) => setObservations(e.target.value)}
-              className="bg-card border-border text-foreground focus:border-primary/50 rounded-xl resize-none"
+              className="bg-white border-border text-foreground focus:border-primary/50 rounded-2xl resize-none"
               rows={3}
             />
           </div>
 
           <Button 
             type="submit" 
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11 rounded-xl font-medium transition-all-smooth hover:scale-[1.02] card-shadow hover:card-shadow-hover"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 rounded-2xl font-medium transition-all-smooth hover:scale-105 card-shadow hover:card-shadow-hover"
           >
             Registrar {type === 'income' ? 'Ingreso' : 'Egreso'}
           </Button>
