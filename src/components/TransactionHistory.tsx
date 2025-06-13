@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { FileSpreadsheet, Download, Search } from 'lucide-react';
 import { Transaction } from '@/lib/types';
 import { exportToPDF } from '@/lib/exportUtils';
-import { sendToGoogleSheets } from '@/lib/googleSheets';
 import { useToast } from '@/hooks/use-toast';
 
 interface TransactionHistoryProps {
@@ -36,31 +35,88 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
     return matchesFilter && matchesSearch;
   });
 
-  const handleExportGoogleSheets = async () => {
+  const exportToGoogleSheets = () => {
+    // Verificar si hay datos para exportar
+    if (filteredTransactions.length === 0) {
+      toast({
+        title: "No hay movimientos para exportar",
+        description: "No se encontraron movimientos con los filtros aplicados.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      const datos = filteredTransactions.map(transaction => ({
-        fecha: transaction.date,
-        monto: transaction.amount,
-        concepto: transaction.concept,
-        metodo_pago: transaction.paymentMethod || 'Efectivo'
+      // Preparar los datos para exportación
+      const exportData = filteredTransactions.map(transaction => ({
+        Fecha: `${transaction.date} ${transaction.time}`,
+        Concepto: transaction.concept,
+        Monto: formatCurrency(transaction.amount),
+        'Método de Pago': transaction.paymentMethod || 'Efectivo'
       }));
 
-      await sendToGoogleSheets({ datos }, 'export_transactions');
+      // Crear encabezados CSV
+      const headers = ['Fecha', 'Concepto', 'Monto', 'Método de Pago'];
       
+      // Convertir a formato CSV
+      const csvContent = [
+        headers.join(','),
+        ...exportData.map(row => 
+          headers.map(header => {
+            const value = row[header as keyof typeof row];
+            // Escapar comillas y envolver en comillas si contiene comas
+            return typeof value === 'string' && value.includes(',') 
+              ? `"${value.replace(/"/g, '""')}"` 
+              : value;
+          }).join(',')
+        )
+      ].join('\n');
+
+      // Crear y descargar archivo CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      const today = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Movimientos_Caja_${today}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      // Abrir Google Sheets en nueva pestaña para importar el archivo
+      const googleSheetsUrl = 'https://sheets.google.com/';
+      window.open(googleSheetsUrl, '_blank');
+
+      // Mostrar mensaje de éxito
       toast({
         title: "✓ Exportación exitosa",
-        description: "¡Datos exportados exitosamente a Google Sheets!",
+        description: "Los movimientos fueron exportados correctamente.",
       });
+
     } catch (error) {
+      console.error('Error al exportar:', error);
       toast({
         title: "✗ Error en la exportación",
-        description: "Error al exportar los datos, intentá nuevamente.",
+        description: "Hubo un problema al exportar los datos. Intentá nuevamente.",
         variant: "destructive",
       });
     }
   };
 
   const handleExportPDF = () => {
+    if (filteredTransactions.length === 0) {
+      toast({
+        title: "No hay movimientos para exportar",
+        description: "No se encontraron movimientos con los filtros aplicados.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     exportToPDF(filteredTransactions);
     toast({
       title: "✓ Exportación exitosa", 
@@ -80,12 +136,12 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
               </CardDescription>
             </div>
             <Button 
-              onClick={handleExportGoogleSheets}
+              onClick={exportToGoogleSheets}
               className="bg-primary hover:bg-primary/90 text-primary-foreground card-shadow hover:card-shadow-hover transition-all-smooth hover-lift"
               size="sm"
             >
               <FileSpreadsheet className="w-4 h-4 mr-2" />
-              Exportar a Google Sheets
+              Exportar a Sheets
             </Button>
           </div>
         </CardHeader>
