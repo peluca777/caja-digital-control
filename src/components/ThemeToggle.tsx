@@ -18,36 +18,36 @@ export function ThemeToggle() {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="h-9 w-9 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-smooth"
+          className="h-11 w-11 rounded-2xl glass-effect border-0 shadow-soft transition-smooth hover-lift"
         >
-          <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-slate-600" />
+          <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-slate-300" />
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="bg-white dark:bg-gray-800 backdrop-blur-xl border-gray-200 dark:border-gray-700 shadow-xl"
+        className="glass-effect border-0 shadow-soft dark:shadow-soft-dark rounded-2xl p-2"
       >
         <DropdownMenuItem 
           onClick={() => setTheme('light')}
-          className="gap-2 cursor-pointer transition-smooth hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+          className="gap-3 cursor-pointer transition-smooth hover:bg-slate-100/80 dark:hover:bg-slate-700/50 text-slate-900 dark:text-slate-100 rounded-xl p-3 font-medium"
         >
-          <Sun className="h-4 w-4" />
+          <Sun className="h-5 w-5" />
           <span>Claro</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={() => setTheme('dark')}
-          className="gap-2 cursor-pointer transition-smooth hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+          className="gap-3 cursor-pointer transition-smooth hover:bg-slate-100/80 dark:hover:bg-slate-700/50 text-slate-900 dark:text-slate-100 rounded-xl p-3 font-medium"
         >
-          <Moon className="h-4 w-4" />
+          <Moon className="h-5 w-5" />
           <span>Oscuro</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={() => setTheme('system')}
-          className="gap-2 cursor-pointer transition-smooth hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+          className="gap-3 cursor-pointer transition-smooth hover:bg-slate-100/80 dark:hover:bg-slate-700/50 text-slate-900 dark:text-slate-100 rounded-xl p-3 font-medium"
         >
-          <Monitor className="h-4 w-4" />
+          <Monitor className="h-5 w-5" />
           <span>Sistema</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

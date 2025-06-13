@@ -21,7 +21,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, user
   const availableItems = menuItems.filter(item => item.roles.includes(userRole));
 
   return (
-    <nav className="flex flex-wrap gap-3 mb-8 animate-slide-up">
+    <nav className="flex flex-wrap gap-4 mb-10 animate-slide-up">
       {availableItems.map((item, index) => {
         const IconComponent = item.icon;
         const isActive = currentView === item.id;
@@ -33,18 +33,25 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, user
             onClick={() => onViewChange(item.id)}
             size="sm"
             className={`
-              transition-smooth hover-lift rounded-2xl px-6 py-3 relative overflow-hidden group
+              transition-smooth hover-lift rounded-3xl px-8 py-4 h-auto relative overflow-hidden group shadow-soft
               ${isActive 
-                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg border-blue-600' 
-                : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-blue-400 dark:hover:border-blue-500 shadow-sm'
+                ? 'gradient-primary text-white border-0 shadow-xl' 
+                : 'glass-effect border-0 text-slate-900 dark:text-slate-100 hover:shadow-xl'
               }
             `}
             style={{ 
-              animationDelay: `${index * 0.05}s`
+              animationDelay: `${index * 0.08}s`
             }}
           >
-            <IconComponent className="w-4 h-4 mr-2" />
-            <span className="font-medium">{item.label}</span>
+            <div className="flex items-center space-x-3">
+              <IconComponent className={`w-5 h-5 transition-transform duration-300 group-hover:scale-110 ${
+                isActive ? 'text-white' : 'text-slate-600 dark:text-slate-400'
+              }`} />
+              <span className="font-bold text-sm">{item.label}</span>
+            </div>
+            {isActive && (
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent pointer-events-none"></div>
+            )}
           </Button>
         );
       })}
