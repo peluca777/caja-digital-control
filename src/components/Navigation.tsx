@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { BarChart3, Coins, List, History, Settings, Sparkles } from 'lucide-react';
+import { BarChart3, Coins, List, History, Settings } from 'lucide-react';
 
 interface NavigationProps {
   currentView: string;
@@ -35,25 +35,16 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, user
             className={`
               transition-smooth hover-lift rounded-2xl px-6 py-3 relative overflow-hidden group
               ${isActive 
-                ? 'bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-elevated border-primary' 
-                : 'bg-card/50 border-border/50 text-foreground hover:bg-accent/30 hover:border-primary/30 shadow-soft backdrop-blur-sm'
+                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg border-blue-600' 
+                : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-blue-400 dark:hover:border-blue-500 shadow-sm'
               }
             `}
             style={{ 
               animationDelay: `${index * 0.05}s`
             }}
           >
-            {isActive && (
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent rounded-2xl"></div>
-            )}
-            <IconComponent className="w-4 h-4 mr-2 relative z-10" />
-            <span className="relative z-10 font-medium">{item.label}</span>
-            {isActive && (
-              <Sparkles className="w-3 h-3 ml-2 relative z-10 animate-pulse" />
-            )}
-            {!isActive && (
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
-            )}
+            <IconComponent className="w-4 h-4 mr-2" />
+            <span className="font-medium">{item.label}</span>
           </Button>
         );
       })}
