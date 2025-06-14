@@ -35,7 +35,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
     return matchesFilter && matchesSearch;
   });
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     // Verificar si hay datos para exportar
     if (filteredTransactions.length === 0) {
       toast({
@@ -47,18 +47,18 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
     }
 
     try {
-      const fileName = exportToExcel(filteredTransactions);
+      const fileName = await exportToExcel(filteredTransactions);
       
       // Mostrar mensaje de éxito
       toast({
-        title: "✓ Exportación exitosa",
-        description: `Archivo ${fileName} descargado correctamente.`,
+        title: "✅ Los movimientos fueron exportados correctamente",
+        description: `Archivo ${fileName} descargado exitosamente.`,
       });
 
     } catch (error) {
       console.error('Error al exportar a Excel:', error);
       toast({
-        title: "✗ Error en la exportación",
+        title: "❌ Error en la exportación",
         description: "Hubo un problema al generar el archivo Excel. Intentá nuevamente.",
         variant: "destructive",
       });

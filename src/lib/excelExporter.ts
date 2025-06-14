@@ -1,144 +1,168 @@
 
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
 import { Transaction } from './types';
 
-export const exportToExcel = (transactions: Transaction[]) => {
+export const exportToExcel = async (transactions: Transaction[]) => {
   // Crear un nuevo libro de trabajo
-  const workbook = XLSX.utils.book_new();
-  
-  // Formatear moneda sin decimales
-  const formatCurrency = (amount: number) => {
-    return Math.round(amount); // Sin decimales como en la imagen
-  };
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Caja Diaria');
 
-  // Preparar los datos base
-  const today = new Date().toLocaleDateString('es-AR');
-  const fileName = `CajaDiaria_${new Date().toISOString().split('T')[0]}.xlsx`;
+  // Configurar propiedades del libro
+  workbook.creator = 'Control de Caja';
+  workbook.created = new Date();
 
-  // Crear encabezados principales
-  const headers = ['Fecha', 'Concepto', 'Método de Pago', 'Monto'];
-  
-  // Preparar datos de transacciones ordenados por fecha/hora
+  // Preparar datos ordenados por fecha/hora
   const sortedTransactions = [...transactions].sort((a, b) => {
     const dateTimeA = `${a.date} ${a.time}`;
     const dateTimeB = `${b.date} ${b.time}`;
     return dateTimeA.localeCompare(dateTimeB);
   });
 
-  const transactionData = sortedTransactions.map(transaction => [
-    `${transaction.date} ${transaction.time}`,
-    transaction.concept,
-    transaction.paymentMethod || 'Efectivo',
-    formatCurrency(transaction.amount)
-  ]);
+  // 1. ENCABEZADOS
+  const headers = ['Fecha', 'Concepto', 'Método de Pago', 'Monto'];
+  const headerRow = worksheet.addRow(headers);
+
+  // Aplicar formato a los encabezados
+  headerRow.eachCell((cell, colNumber) => {
+    cell.font = { 
+      bold: true, 
+      color: { argb: 'FF000000' }, 
+      size: 12 
+    };
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFD3D3D3' } // Gris claro
+    };
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FF000000' } },
+      left: { style: 'thin', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right: { style: 'thin', color: { argb: 'FF000000' } }
+    };
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+  });
+
+  // 2. DATOS DE TRANSACCIONES
+  sortedTransactions.forEach(transaction => {
+    const row = worksheet.addRow([
+      `${transaction.date} ${transaction.time}`,
+      transaction.concept,
+      transaction.paymentMethod || 'Efectivo',
+      transaction.type === 'income' ? transaction.amount : -transaction.amount
+    ]);
+
+    // Aplicar formato a cada celda de datos
+    row.eachCell((cell, colNumber) => {
+      cell.font = { 
+        color: { argb: 'FF000000' }, 
+        size: 11 
+      };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } }
+      };
+
+      // Alinear monto a la derecha y aplicar formato numérico
+      if (colNumber === 4) {
+        cell.alignment = { horizontal: 'right', vertical: 'middle' };
+        cell.numFmt = '#,##0'; // Formato sin decimales
+      } else {
+        cell.alignment = { horizontal: 'left', vertical: 'middle' };
+      }
+    });
+  });
+
+  // 3. FILA VACÍA
+  worksheet.addRow([]);
+
+  // 4. BLOQUE DE TOTALES
+  const totalRow = worksheet.addRow(['Totales por método', '', '', '']);
+  
+  // Formato para el título de totales
+  totalRow.eachCell((cell, colNumber) => {
+    cell.font = { 
+      bold: true, 
+      color: { argb: 'FF000000' }, 
+      size: 11 
+    };
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FF000000' } },
+      left: { style: 'thin', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right: { style: 'thin', color: { argb: 'FF000000' } }
+    };
+    cell.alignment = { horizontal: 'left', vertical: 'middle' };
+  });
 
   // Calcular totales por método de pago
   const paymentMethods = ['Efectivo', 'Transferencia', 'Tarjeta', 'Otros'];
-  const paymentTotals = paymentMethods.reduce((acc, method) => {
+  const dataStartRow = 2; // Primera fila de datos (después del encabezado)
+  const dataEndRow = sortedTransactions.length + 1; // Última fila de datos
+
+  paymentMethods.forEach(method => {
     const total = transactions
       .filter(t => (t.paymentMethod || 'Efectivo') === method)
       .reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0);
+
+    // Solo mostrar métodos que tengan movimientos
     if (total !== 0) {
-      acc[method] = total;
-    }
-    return acc;
-  }, {} as Record<string, number>);
-
-  // Crear la estructura de datos para Excel
-  const excelData = [
-    // Encabezados
-    headers,
-    // Datos de transacciones
-    ...transactionData,
-    // Espacio en blanco
-    [],
-    // Título de totales
-    ['Totales por método', '', '', ''],
-    // Totales por método
-    ...Object.entries(paymentTotals).map(([method, total]) => [
-      `${method}:`,
-      '',
-      '',
-      formatCurrency(total)
-    ])
-  ];
-
-  // Crear la hoja de cálculo
-  const worksheet = XLSX.utils.aoa_to_sheet(excelData);
-
-  // Configurar el ancho de las columnas
-  const columnWidths = [
-    { wch: 18 }, // Fecha
-    { wch: 35 }, // Concepto
-    { wch: 18 }, // Método de Pago
-    { wch: 12 }  // Monto
-  ];
-  worksheet['!cols'] = columnWidths;
-
-  // Aplicar estilos a las celdas
-  const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
-  
-  for (let row = range.s.r; row <= range.e.r; row++) {
-    for (let col = range.s.c; col <= range.e.c; col++) {
-      const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+      const methodRow = worksheet.addRow([`${method}:`, '', '', total]);
       
-      if (!worksheet[cellAddress]) {
-        worksheet[cellAddress] = { t: 's', v: '' };
-      }
+      // Aplicar formato a la fila de método
+      methodRow.eachCell((cell, colNumber) => {
+        cell.font = { 
+          bold: true, 
+          color: { argb: 'FF000000' }, 
+          size: 11 
+        };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FF000000' } },
+          left: { style: 'thin', color: { argb: 'FF000000' } },
+          bottom: { style: 'thin', color: { argb: 'FF000000' } },
+          right: { style: 'thin', color: { argb: 'FF000000' } }
+        };
 
-      // Aplicar estilos según la posición
-      if (row === 0) {
-        // Encabezados: fondo gris claro y negrita
-        worksheet[cellAddress].s = {
-          fill: { fgColor: { rgb: 'D3D3D3' } },
-          font: { bold: true, color: { rgb: '000000' } },
-          border: {
-            top: { style: 'thin', color: { rgb: '000000' } },
-            bottom: { style: 'thin', color: { rgb: '000000' } },
-            left: { style: 'thin', color: { rgb: '000000' } },
-            right: { style: 'thin', color: { rgb: '000000' } }
-          },
-          alignment: { horizontal: 'center' }
-        };
-      } else if (row >= transactionData.length + 2) {
-        // Filas de totales: negrita
-        worksheet[cellAddress].s = {
-          font: { bold: true, color: { rgb: '000000' } },
-          border: {
-            top: { style: 'thin', color: { rgb: '000000' } },
-            bottom: { style: 'thin', color: { rgb: '000000' } },
-            left: { style: 'thin', color: { rgb: '000000' } },
-            right: { style: 'thin', color: { rgb: '000000' } }
-          },
-          alignment: col === 3 ? { horizontal: 'right' } : { horizontal: 'left' }
-        };
-      } else {
-        // Filas normales de datos
-        worksheet[cellAddress].s = {
-          font: { color: { rgb: '000000' } },
-          border: {
-            top: { style: 'thin', color: { rgb: '000000' } },
-            bottom: { style: 'thin', color: { rgb: '000000' } },
-            left: { style: 'thin', color: { rgb: '000000' } },
-            right: { style: 'thin', color: { rgb: '000000' } }
-          },
-          alignment: col === 3 ? { horizontal: 'right' } : { horizontal: 'left' }
-        };
-      }
-
-      // Formato numérico para la columna de montos (columna 3)
-      if (col === 3 && row > 0 && worksheet[cellAddress].v !== '') {
-        worksheet[cellAddress].t = 'n';
-        worksheet[cellAddress].z = '#,##0'; // Formato sin decimales
-      }
+        if (colNumber === 4) {
+          cell.alignment = { horizontal: 'right', vertical: 'middle' };
+          cell.numFmt = '#,##0'; // Formato sin decimales
+        } else {
+          cell.alignment = { horizontal: 'left', vertical: 'middle' };
+        }
+      });
     }
-  }
+  });
 
-  // Agregar la hoja al libro con el nombre "Caja Diaria"
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Caja Diaria');
+  // 5. CONFIGURAR ANCHO DE COLUMNAS
+  worksheet.columns = [
+    { width: 18 }, // Fecha
+    { width: 35 }, // Concepto
+    { width: 18 }, // Método de Pago
+    { width: 12 }  // Monto
+  ];
 
-  // Generar y descargar el archivo
-  XLSX.writeFile(workbook, fileName);
+  // 6. GENERAR Y DESCARGAR EL ARCHIVO
+  const today = new Date().toISOString().split('T')[0];
+  const fileName = `CajaDiaria_${today}.xlsx`;
+
+  // Generar el buffer del archivo
+  const buffer = await workbook.xlsx.writeBuffer();
+  
+  // Crear blob y descargar
+  const blob = new Blob([buffer], { 
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+  });
+  
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
 
   return fileName;
 };
