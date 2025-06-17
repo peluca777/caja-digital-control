@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import Login from '@/components/Login';
@@ -32,7 +31,14 @@ const Index = () => {
     totalExpenses: 0,
     balance: 0,
     transactionCount: 0,
-    openAmount: 0
+    openAmount: 0,
+    cashBalance: 0,
+    totalDaySales: 0,
+    cashIncome: 0,
+    cashExpenses: 0,
+    transferIncome: 0,
+    cardIncome: 0,
+    otherIncome: 0
   });
   const { toast } = useToast();
 
@@ -53,29 +59,56 @@ const Index = () => {
     const todaysTransactions = getTodaysTransactions(todaysCashRegister?.id);
     setTransactions(todaysTransactions);
 
-    // Calculate stats
-    const totalIncome = todaysTransactions
-      .filter(t => t.type === 'income')
+    // Calcular estadísticas separando por método de pago
+    const openAmount = todaysCashRegister?.openAmount || 0;
+    
+    // Ingresos por método de pago
+    const cashIncome = todaysTransactions
+      .filter(t => t.type === 'income' && (t.paymentMethod === 'Efectivo' || !t.paymentMethod))
       .reduce((sum, t) => sum + t.amount, 0);
     
-    const totalExpenses = todaysTransactions
-      .filter(t => t.type === 'expense')
+    const transferIncome = todaysTransactions
+      .filter(t => t.type === 'income' && t.paymentMethod === 'Transferencia')
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    const cardIncome = todaysTransactions
+      .filter(t => t.type === 'income' && t.paymentMethod === 'Tarjeta')
       .reduce((sum, t) => sum + t.amount, 0);
 
-    const openAmount = todaysCashRegister?.openAmount || 0;
-    const balance = openAmount + totalIncome - totalExpenses;
+    const otherIncome = todaysTransactions
+      .filter(t => t.type === 'income' && t.paymentMethod && !['Efectivo', 'Transferencia', 'Tarjeta'].includes(t.paymentMethod))
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    // Solo egresos en efectivo afectan la caja
+    const cashExpenses = todaysTransactions
+      .filter(t => t.type === 'expense' && (t.paymentMethod === 'Efectivo' || !t.paymentMethod))
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    // Totales
+    const totalIncome = cashIncome + transferIncome + cardIncome + otherIncome;
+    const totalExpenses = cashExpenses; // Solo efectivo para gastos
+    const cashBalance = openAmount + cashIncome - cashExpenses; // Solo efectivo
+    const totalDaySales = totalIncome; // Todas las ventas del día
+    const balance = openAmount + totalIncome - totalExpenses; // Balance general
 
     setStats({
       totalIncome,
       totalExpenses,
       balance,
       transactionCount: todaysTransactions.length,
-      openAmount
+      openAmount,
+      cashBalance,
+      totalDaySales,
+      cashIncome,
+      cashExpenses,
+      transferIncome,
+      cardIncome,
+      otherIncome
     });
 
-    // Update cash register close amount
+    // Actualizar el monto de cierre con el balance de efectivo
     if (todaysCashRegister && todaysCashRegister.status === 'open') {
-      updateCashRegister(todaysCashRegister.id, { closeAmount: balance });
+      updateCashRegister(todaysCashRegister.id, { closeAmount: cashBalance });
     }
   };
 
@@ -110,7 +143,8 @@ const Index = () => {
     if (!cashRegister) return;
 
     const now = new Date();
-    const difference = (cashRegister.closeAmount || 0) - declaredAmount;
+    // La diferencia debe ser basada en el efectivo, no en el balance total
+    const difference = stats.cashBalance - declaredAmount;
     
     const updates = {
       declaredAmount,
@@ -125,7 +159,7 @@ const Index = () => {
     if (Math.abs(difference) > 0.01) {
       toast({
         title: "Diferencia en caja",
-        description: `Hay una diferencia de ${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(Math.abs(difference))}`,
+        description: `Hay una diferencia de ${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(Math.abs(difference))} en efectivo`,
         variant: "destructive",
       });
     }

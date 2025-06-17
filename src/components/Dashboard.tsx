@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DashboardStats } from '@/lib/types';
-import { TrendingUp, TrendingDown, DollarSign, Activity, Calendar, Target, Zap } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Activity, Calendar, Target, Zap, Banknote, CreditCard, ArrowRightLeft } from 'lucide-react';
 
 interface DashboardProps {
   stats: DashboardStats;
@@ -26,7 +26,7 @@ const cardVariants = {
     opacity: 1, 
     y: 0, 
     scale: 1,
-    transition: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }
+    transition: { duration: 0.3 }
   }
 };
 
@@ -50,14 +50,24 @@ const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
       trend: null
     },
     {
-      title: 'Ingresos',
-      value: formatCurrency(stats.totalIncome),
+      title: 'Efectivo en Caja',
+      value: formatCurrency(stats.cashBalance),
+      icon: Banknote,
+      color: 'text-green-700 dark:text-green-400',
+      bgGradient: 'from-green-500 to-emerald-600',
+      bgLight: 'bg-green-100/80 dark:bg-green-900/30',
+      description: 'Solo movimientos en efectivo',
+      trend: stats.cashBalance > stats.openAmount ? '+' + formatCurrency(stats.cashBalance - stats.openAmount) : null
+    },
+    {
+      title: 'Total del Día',
+      value: formatCurrency(stats.totalDaySales),
       icon: TrendingUp,
-      color: 'text-emerald-700 dark:text-emerald-400',
-      bgGradient: 'from-emerald-500 to-green-600',
-      bgLight: 'bg-emerald-100/80 dark:bg-emerald-900/30',
-      description: `${stats.transactionCount} transacciones`,
-      trend: '+12.5%'
+      color: 'text-blue-700 dark:text-blue-400',
+      bgGradient: 'from-blue-500 to-indigo-600',
+      bgLight: 'bg-blue-100/80 dark:bg-blue-900/30',
+      description: 'Efectivo + Transferencias + Tarjetas',
+      trend: null
     },
     {
       title: 'Egresos',
@@ -66,18 +76,8 @@ const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
       color: 'text-red-700 dark:text-red-400',
       bgGradient: 'from-red-500 to-rose-600',
       bgLight: 'bg-red-100/80 dark:bg-red-900/30',
-      description: 'Gastos del período',
+      description: 'Solo gastos en efectivo',
       trend: null
-    },
-    {
-      title: 'Saldo Actual',
-      value: formatCurrency(stats.balance),
-      icon: Activity,
-      color: stats.balance >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-red-700 dark:text-red-400',
-      bgGradient: stats.balance >= 0 ? 'from-blue-500 to-indigo-600' : 'from-red-500 to-rose-600',
-      bgLight: stats.balance >= 0 ? 'bg-blue-100/80 dark:bg-blue-900/30' : 'bg-red-100/80 dark:bg-red-900/30',
-      description: 'Balance total',
-      trend: stats.balance >= 0 ? '+5.2%' : '-2.1%'
     }
   ];
 
@@ -147,11 +147,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
                         {stat.description}
                       </p>
                       {stat.trend && (
-                        <span className={`text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl ${
-                          stat.trend.startsWith('+') 
-                            ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-100/80 dark:bg-emerald-900/30' 
-                            : 'text-red-700 dark:text-red-400 bg-red-100/80 dark:bg-red-900/30'
-                        } card-shadow`}>
+                        <span className="text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-emerald-700 dark:text-emerald-400 bg-emerald-100/80 dark:bg-emerald-900/30 card-shadow">
                           {stat.trend}
                         </span>
                       )}
@@ -164,36 +160,51 @@ const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
         })}
       </motion.div>
 
-      {/* Additional Info Cards */}
+      {/* Payment Methods Breakdown */}
       <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6" variants={containerVariants}>
         <motion.div variants={cardVariants}>
           <Card className="glass-effect border-0 card-shadow dark:card-shadow rounded-2xl sm:rounded-3xl overflow-hidden">
             <CardHeader>
               <CardTitle className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
-                <span>Resumen del Día</span>
+                <ArrowRightLeft className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
+                <span>Ingresos por Método</span>
               </CardTitle>
-              <CardDescription className="text-slate-600 dark:text-slate-400 font-medium">Actividad financiera en tiempo real</CardDescription>
+              <CardDescription className="text-slate-600 dark:text-slate-400 font-medium">Desglose de métodos de pago</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 sm:space-y-4">
                 <motion.div 
-                  className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl glass-effect card-shadow group cursor-pointer"
+                  className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-green-50 dark:bg-green-900/20 border border-green-200/50 dark:border-green-700/50 card-shadow group cursor-pointer"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Total Movimientos</span>
-                  <span className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.transactionCount}</span>
+                  <div className="flex items-center space-x-3">
+                    <Banknote className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Efectivo</span>
+                  </div>
+                  <span className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{formatCurrency(stats.cashIncome)}</span>
                 </motion.div>
                 <motion.div 
-                  className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl glass-effect card-shadow group cursor-pointer"
+                  className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-700/50 card-shadow group cursor-pointer"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Flujo Neto</span>
-                  <span className={`text-xl sm:text-2xl font-bold ${stats.balance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {formatCurrency(stats.totalIncome - stats.totalExpenses)}
-                  </span>
+                  <div className="flex items-center space-x-3">
+                    <ArrowRightLeft className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Transferencias</span>
+                  </div>
+                  <span className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{formatCurrency(stats.transferIncome)}</span>
+                </motion.div>
+                <motion.div 
+                  className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-purple-50 dark:bg-purple-900/20 border border-purple-200/50 dark:border-purple-700/50 card-shadow group cursor-pointer"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <CreditCard className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Tarjetas</span>
+                  </div>
+                  <span className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{formatCurrency(stats.cardIncome)}</span>
                 </motion.div>
               </div>
             </CardContent>
@@ -212,6 +223,24 @@ const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
             <CardContent>
               <div className="space-y-3 sm:space-y-4">
                 <motion.div 
+                  className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl glass-effect card-shadow group cursor-pointer"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Total Movimientos</span>
+                  <span className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.transactionCount}</span>
+                </motion.div>
+                <motion.div 
+                  className="flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl glass-effect card-shadow group cursor-pointer"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Diferencia Esperada</span>
+                  <span className={`text-xl sm:text-2xl font-bold ${Math.abs(stats.cashBalance - stats.openAmount) < 0.01 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {formatCurrency(stats.cashBalance - stats.openAmount)}
+                  </span>
+                </motion.div>
+                <motion.div 
                   className="flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 card-shadow group cursor-pointer"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -225,14 +254,6 @@ const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
                     />
                     <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Operativo</span>
                   </div>
-                </motion.div>
-                <motion.div 
-                  className="flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl glass-effect card-shadow group cursor-pointer"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Última sincronización</span>
-                  <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">Hace 2 min</span>
                 </motion.div>
               </div>
             </CardContent>

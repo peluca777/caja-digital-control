@@ -39,4 +39,11 @@ export interface DashboardStats {
   balance: number;
   transactionCount: number;
   openAmount: number;
+  cashBalance: number; // Solo efectivo
+  totalDaySales: number; // Efectivo + transferencias + tarjetas
+  cashIncome: number; // Solo ingresos en efectivo
+  cashExpenses: number; // Solo egresos en efectivo
+  transferIncome: number; // Solo ingresos por transferencia
+  cardIncome: number; // Solo ingresos por tarjeta
+  otherIncome: number; // Otros métodos de pago
 }
