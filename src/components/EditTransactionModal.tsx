@@ -73,6 +73,15 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
     });
   };
 
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Permitir solo números y punto decimal, sin ceros iniciales innecesarios
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      const numericValue = value === '' ? 0 : parseFloat(value) || 0;
+      setFormData({ ...formData!, amount: numericValue });
+    }
+  };
+
   if (!formData) return null;
 
   return (
@@ -143,9 +152,10 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
+              value={formData.amount || ''}
+              onChange={handleAmountChange}
               className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-xl"
+              placeholder="0.00"
             />
           </div>
 
@@ -185,6 +195,27 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
               rows={3}
               placeholder="Comentarios adicionales..."
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              Fecha y Hora
+            </Label>
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-xl"
+              />
+              <Input
+                type="time"
+                step="1"
+                value={formData.time}
+                onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-xl"
+              />
+            </div>
           </div>
         </div>
 

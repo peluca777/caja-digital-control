@@ -3,193 +3,141 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DollarSign, LogIn, Sparkles } from 'lucide-react';
-import { getUsers, setCurrentUser } from '@/lib/storage';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { User } from '@/lib/types';
-import { ThemeToggle } from './ThemeToggle';
+import { getUsers, setCurrentUser } from '@/lib/storage';
+import { LogIn, User as UserIcon, Shield } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface LoginProps {
   onLogin: (user: User) => void;
 }
 
-const containerVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.4,
-      ease: "easeOut",
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: { duration: 0.3, ease: "easeOut" }
-  }
-};
-
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const [selectedUserId, setSelectedUserId] = useState<string>('');
-  const users = getUsers();
+  const [selectedUser, setSelectedUser] = useState<string>('');
+  const [customName, setCustomName] = useState<string>('');
+  const { toast } = useToast();
 
   const handleLogin = () => {
-    const user = users.find(u => u.id === selectedUserId);
-    if (user) {
-      setCurrentUser(user);
-      onLogin(user);
+    const finalName = customName.trim() || 'Administrador';
+    
+    const adminUser: User = {
+      id: 'admin',
+      name: finalName,
+      role: 'Supervisor'
+    };
+
+    // Guardar el nombre personalizado en localStorage
+    localStorage.setItem('adminName', finalName);
+    
+    setCurrentUser(adminUser);
+    onLogin(adminUser);
+    
+    toast({
+      title: "✅ Sesión iniciada",
+      description: `Bienvenido/a, ${finalName}`,
+    });
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { 
+        duration: 0.4, 
+        ease: [0.4, 0.0, 0.2, 1], 
+        staggerChildren: 0.1 
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.3, 
+        ease: [0.4, 0.0, 0.2, 1] 
+      }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 relative overflow-hidden">
-      {/* Animated background elements */}
-      <motion.div 
-        className="absolute top-10 sm:top-20 left-10 sm:left-20 w-60 h-60 sm:w-80 sm:h-80 bg-gradient-to-r from-blue-200/40 to-indigo-200/40 dark:from-blue-800/20 dark:to-indigo-800/20 rounded-full blur-3xl"
-        animate={{ 
-          scale: [1, 1.1, 1],
-          opacity: [0.3, 0.5, 0.3]
-        }}
-        transition={{ 
-          duration: 4, 
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-      <motion.div 
-        className="absolute bottom-10 sm:bottom-20 right-10 sm:right-20 w-72 h-72 sm:w-96 sm:h-96 bg-gradient-to-r from-emerald-200/30 to-green-200/30 dark:from-emerald-800/15 dark:to-green-800/15 rounded-full blur-3xl"
-        animate={{ 
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.4, 0.3]
-        }}
-        transition={{ 
-          duration: 5, 
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1
-        }}
-      />
-      
-      {/* Theme Toggle */}
-      <motion.div 
-        className="absolute top-4 sm:top-6 right-4 sm:right-6 z-50"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.8, duration: 0.3 }}
-      >
-        <ThemeToggle />
-      </motion.div>
-
-      {/* Login Card */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 flex items-center justify-center p-4">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
+        className="w-full max-w-md"
       >
-        <Card className="w-full max-w-sm sm:max-w-lg glass-effect card-shadow dark:card-shadow border-0 rounded-2xl sm:rounded-3xl overflow-hidden">
-          <CardHeader className="text-center pb-6 sm:pb-8 pt-8 sm:pt-12 px-6 sm:px-8">
-            <motion.div className="mb-6 sm:mb-8" variants={itemVariants}>
-              <motion.div 
-                className="w-16 h-16 sm:w-20 sm:h-20 mx-auto gradient-primary rounded-2xl sm:rounded-3xl flex items-center justify-center card-shadow transition-all-smooth group relative"
-                whileHover={{ scale: 1.05, rotate: 5 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <DollarSign className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                <motion.div
-                  animate={{ 
-                    scale: [1, 1.2, 1],
-                    opacity: [0.5, 1, 0.5]
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                >
-                  <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-blue-200 absolute top-1 sm:top-2 right-1 sm:right-2" />
-                </motion.div>
+        <motion.div variants={itemVariants} className="text-center mb-8">
+          <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ duration: 0.6, ease: [0.4, 0.0, 0.2, 1] }}
+            className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+          >
+            <span className="text-3xl">💰</span>
+          </motion.div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Caja Digital Control</h1>
+          <p className="text-gray-600">Sistema de gestión de caja profesional</p>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl rounded-3xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50 pb-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
+                  <Shield className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-gray-900 text-xl font-bold">Acceso al Sistema</CardTitle>
+                  <CardDescription className="text-gray-600 font-medium">
+                    Ingresa como administrador
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-8 space-y-6">
+              <motion.div variants={itemVariants} className="space-y-3">
+                <Label htmlFor="customName" className="text-gray-900 font-bold text-sm uppercase tracking-wider">
+                  Nombre del Administrador
+                </Label>
+                <Input
+                  id="customName"
+                  type="text"
+                  placeholder="Ingresa tu nombre (opcional)"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  className="bg-gray-50 border-0 text-gray-900 shadow-md h-14 rounded-2xl transition-all hover:shadow-lg focus:shadow-xl text-lg"
+                />
+                <p className="text-xs text-gray-500">
+                  Si no ingresas un nombre, se usará "Administrador" por defecto
+                </p>
               </motion.div>
-            </motion.div>
-            <motion.div variants={itemVariants}>
-              <CardTitle className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                Control de Caja
-              </CardTitle>
-              <CardDescription className="text-slate-600 dark:text-slate-400 mt-3 sm:mt-4 text-sm sm:text-lg leading-relaxed">
-                Sistema inteligente de gestión financiera
-              </CardDescription>
-            </motion.div>
-          </CardHeader>
-          
-          <CardContent className="space-y-6 sm:space-y-8 pb-8 sm:pb-12 px-6 sm:px-8">
-            <motion.div className="space-y-3 sm:space-y-4" variants={itemVariants}>
-              <label className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 block tracking-wide">
-                SELECCIONAR USUARIO
-              </label>
-              <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                <SelectTrigger className="h-12 sm:h-14 glass-effect border-0 text-slate-900 dark:text-slate-100 rounded-xl sm:rounded-2xl card-shadow transition-all-smooth focus:card-shadow-hover">
-                  <SelectValue placeholder="Elige tu perfil de usuario" />
-                </SelectTrigger>
-                <SelectContent className="glass-effect border-0 card-shadow dark:card-shadow rounded-xl sm:rounded-2xl">
-                  {users.map(user => (
-                    <SelectItem 
-                      key={user.id} 
-                      value={user.id} 
-                      className="hover:bg-slate-100/80 dark:hover:bg-slate-700/50 focus:bg-slate-100/80 dark:focus:bg-slate-700/50 cursor-pointer transition-all-smooth rounded-lg m-2 text-slate-900 dark:text-slate-100 p-3 sm:p-4"
-                    >
-                      <div className="flex items-center space-x-3 sm:space-x-4">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 gradient-primary rounded-xl sm:rounded-2xl flex items-center justify-center card-shadow">
-                          <span className="text-white text-sm sm:text-lg font-bold">
-                            {user.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="text-left">
-                          <div className="font-semibold text-slate-900 dark:text-slate-100 text-sm sm:text-base">{user.name}</div>
-                          <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">{user.role}</div>
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </motion.div>
-            
-            <motion.div variants={itemVariants}>
-              <motion.div
-                whileHover={selectedUserId ? { scale: 1.02, y: -1 } : {}}
-                whileTap={selectedUserId ? { scale: 0.98 } : {}}
-              >
+
+              <motion.div variants={itemVariants}>
                 <Button 
-                  onClick={handleLogin} 
-                  disabled={!selectedUserId} 
-                  className="w-full h-12 sm:h-14 gradient-primary disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white font-bold rounded-xl sm:rounded-2xl card-shadow disabled:opacity-50 disabled:cursor-not-allowed transition-all-smooth"
+                  onClick={handleLogin}
+                  className="w-full h-16 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-2xl shadow-lg transition-all hover:shadow-xl text-lg"
                 >
-                  <LogIn className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
-                  Iniciar Sesión Segura
+                  <LogIn className="w-6 h-6 mr-3" />
+                  Iniciar Sesión
                 </Button>
               </motion.div>
-            </motion.div>
-            
-            <motion.div 
-              className="text-center text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium" 
-              variants={itemVariants}
-            >
-              <div className="flex items-center justify-center space-x-2">
-                <motion.div 
-                  className="w-2 h-2 bg-emerald-500 rounded-full"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-                <span>Sistema Empresarial v3.0 • Seguro & Confiable</span>
-              </div>
-            </motion.div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div 
+          variants={itemVariants}
+          className="text-center mt-6 text-gray-500 text-sm"
+        >
+          © 2024 Caja Digital Control - Sistema profesional de gestión
+        </motion.div>
       </motion.div>
     </div>
   );

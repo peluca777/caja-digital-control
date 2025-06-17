@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import Login from '@/components/Login';
@@ -7,6 +6,7 @@ import CashRegisterControl from '@/components/CashRegisterControl';
 import TransactionForm from '@/components/TransactionForm';
 import TransactionHistory from '@/components/TransactionHistory';
 import Settings from '@/components/Settings';
+import ProfileSettings from '@/components/ProfileSettings';
 import Navigation from '@/components/Navigation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
@@ -53,9 +53,7 @@ const Index = () => {
   const loadData = () => {
     if (!currentUser) return;
 
-    const todaysCashRegister = getTodaysCashRegister(
-      currentUser.role === 'Cajero' ? currentUser.id : undefined
-    );
+    const todaysCashRegister = getTodaysCashRegister(currentUser.id);
     setCashRegister(todaysCashRegister);
 
     const todaysTransactions = getTodaysTransactions(todaysCashRegister?.id);
@@ -115,6 +113,11 @@ const Index = () => {
   };
 
   const handleLogin = (user: User) => {
+    // Usar el nombre guardado en localStorage si existe
+    const savedName = localStorage.getItem('adminName');
+    if (savedName && savedName !== user.name) {
+      user = { ...user, name: savedName };
+    }
     setCurrentUser(user);
   };
 
@@ -132,7 +135,7 @@ const Index = () => {
       userId: currentUser.id,
       userName: currentUser.name,
       openAmount,
-      openTime: now.toLocaleTimeString('es-AR'),
+      openTime: now.toLocaleTimeString('es-AR', { hour12: false }),
       status: 'open'
     };
 
@@ -151,7 +154,7 @@ const Index = () => {
     const updates = {
       declaredAmount,
       difference,
-      closeTime: now.toLocaleTimeString('es-AR'),
+      closeTime: now.toLocaleTimeString('es-AR', { hour12: false }),
       status: 'closed' as const
     };
 
@@ -235,17 +238,16 @@ const Index = () => {
       
       case 'history':
         const allTransactions = getTransactions();
-        const filteredTransactions = currentUser.role === 'Supervisor' 
-          ? allTransactions 
-          : allTransactions.filter(t => t.userId === currentUser.id);
-        
         return (
           <TransactionHistory
-            transactions={filteredTransactions}
+            transactions={allTransactions}
             onExport={handleExport}
             onUpdateTransaction={handleUpdateTransaction}
           />
         );
+      
+      case 'profile':
+        return <ProfileSettings />;
       
       case 'settings':
         return <Settings />;

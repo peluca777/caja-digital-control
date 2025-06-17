@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { FileSpreadsheet, Download, Search, Edit } from 'lucide-react';
+import { FileSpreadsheet, Download, Search, Edit, Calendar, Clock } from 'lucide-react';
 import { Transaction } from '@/lib/types';
 import { exportToPDF } from '@/lib/exportUtils';
 import { exportToExcel } from '@/lib/excelExporter';
@@ -35,7 +35,7 @@ const cardVariants = {
   visible: { 
     opacity: 1, 
     y: 0,
-    transition: { duration: 0.3, ease: "easeOut" }
+    transition: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }
   }
 };
 
@@ -45,6 +45,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 }) => {
   const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all');
   const [search, setSearch] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toast } = useToast();
@@ -56,12 +57,29 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
     }).format(amount);
   };
 
+  const formatDateTime = (date: string, time: string) => {
+    try {
+      const dateTime = new Date(`${date}T${time}`);
+      return {
+        date: dateTime.toLocaleDateString('es-AR'),
+        time: dateTime.toLocaleTimeString('es-AR', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          second: '2-digit'
+        })
+      };
+    } catch {
+      return { date, time };
+    }
+  };
+
   const filteredTransactions = transactions.filter(transaction => {
     const matchesFilter = filter === 'all' || transaction.type === filter;
     const matchesSearch = transaction.concept.toLowerCase().includes(search.toLowerCase()) ||
                          transaction.observations?.toLowerCase().includes(search.toLowerCase()) ||
                          transaction.userName.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
+    const matchesDate = !dateFilter || transaction.date === dateFilter;
+    return matchesFilter && matchesSearch && matchesDate;
   });
 
   const handleExportExcel = async () => {
@@ -137,7 +155,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                     Historial de Movimientos
                   </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-gray-400 mt-1 text-sm sm:text-base">
-                    Todas las transacciones del día actual
+                    Todas las transacciones registradas en el sistema
                   </CardDescription>
                 </div>
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -161,6 +179,15 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="pl-10 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700 focus:border-blue-500 dark:focus:border-blue-400 h-10 rounded-xl"
+                  />
+                </div>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 w-4 h-4" />
+                  <Input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="pl-10 w-full sm:w-40 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700 h-10 rounded-xl"
                   />
                 </div>
                 <Select value={filter} onValueChange={(value: 'all' | 'income' | 'expense') => setFilter(value)}>
@@ -187,6 +214,16 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                     Exportar PDF
                   </Button>
                 </motion.div>
+                {dateFilter && (
+                  <Button 
+                    onClick={() => setDateFilter('')}
+                    variant="outline" 
+                    size="sm"
+                    className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl"
+                  >
+                    Limpiar filtro de fecha
+                  </Button>
+                )}
               </div>
 
               <motion.div className="space-y-3" variants={containerVariants}>
@@ -199,69 +236,85 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                     <div className="text-xs sm:text-sm">No se encontraron movimientos para mostrar</div>
                   </motion.div>
                 ) : (
-                  filteredTransactions.map((transaction, index) => (
-                    <motion.div 
-                      key={transaction.id} 
-                      className="border border-gray-200 dark:border-gray-600 rounded-xl p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-md bg-white dark:bg-gray-800"
-                      variants={cardVariants}
-                      whileHover={{ scale: 1.01, y: -1 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                            <Badge 
-                              variant={transaction.type === 'income' ? 'default' : 'destructive'} 
-                              className={transaction.type === 'income' ? 'bg-blue-600 text-white' : 'bg-red-600 text-white'}
-                            >
-                              {transaction.type === 'income' ? 'Ingreso' : 'Egreso'}
-                            </Badge>
-                            <span className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base">
-                              {transaction.concept}
-                            </span>
+                  filteredTransactions.map((transaction, index) => {
+                    const { date, time } = formatDateTime(transaction.date, transaction.time);
+                    return (
+                      <motion.div 
+                        key={transaction.id} 
+                        className="border border-gray-200 dark:border-gray-600 rounded-xl p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-md bg-white dark:bg-gray-800"
+                        variants={cardVariants}
+                        whileHover={{ scale: 1.01, y: -1 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                              <Badge 
+                                variant={transaction.type === 'income' ? 'default' : 'destructive'} 
+                                className={transaction.type === 'income' ? 'bg-blue-600 text-white' : 'bg-red-600 text-white'}
+                              >
+                                {transaction.type === 'income' ? 'Ingreso' : 'Egreso'}
+                              </Badge>
+                              <span className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                                {transaction.concept}
+                              </span>
+                            </div>
+                            {transaction.observations && (
+                              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2 bg-gray-50 dark:bg-gray-700 p-2 rounded-lg border border-gray-200 dark:border-gray-600">
+                                {transaction.observations}
+                              </p>
+                            )}
+                            <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                <span>{date}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                <span>{time}</span>
+                              </div>
+                              <span className="hidden sm:inline">•</span>
+                              <span>{transaction.userName}</span>
+                              {transaction.paymentMethod && (
+                                <>
+                                  <span className="hidden sm:inline">•</span>
+                                  <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                                    transaction.paymentMethod === 'Efectivo' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
+                                    transaction.paymentMethod === 'Transferencia' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300' :
+                                    'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300'
+                                  }`}>
+                                    {transaction.paymentMethod}
+                                  </span>
+                                </>
+                              )}
+                            </div>
                           </div>
-                          {transaction.observations && (
-                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2 bg-gray-50 dark:bg-gray-700 p-2 rounded-lg border border-gray-200 dark:border-gray-600">
-                              {transaction.observations}
-                            </p>
-                          )}
-                          <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                            <span>{transaction.time}</span>
-                            <span className="hidden sm:inline">•</span>
-                            <span>{transaction.userName}</span>
-                            {transaction.paymentMethod && (
-                              <>
-                                <span className="hidden sm:inline">•</span>
-                                <span>{transaction.paymentMethod}</span>
-                              </>
+                          <div className="flex items-center gap-3">
+                            <motion.div 
+                              className={`text-lg sm:text-xl font-semibold ${
+                                transaction.type === 'income' ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400'
+                              }`}
+                              initial={{ scale: 0.8 }}
+                              animate={{ scale: 1 }}
+                              transition={{ delay: index * 0.02, duration: 0.3 }}
+                            >
+                              {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                            </motion.div>
+                            {onUpdateTransaction && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditTransaction(transaction)}
+                                className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <motion.div 
-                            className={`text-lg sm:text-xl font-semibold ${
-                              transaction.type === 'income' ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400'
-                            }`}
-                            initial={{ scale: 0.8 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: index * 0.02, duration: 0.3 }}
-                          >
-                            {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                          </motion.div>
-                          {onUpdateTransaction && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEditTransaction(transaction)}
-                              className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))
+                      </motion.div>
+                    );
+                  })
                 )}
               </motion.div>
             </CardContent>

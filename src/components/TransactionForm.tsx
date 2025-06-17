@@ -26,6 +26,14 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
   const { toast } = useToast();
   const user = getCurrentUser();
 
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Permitir solo números y punto decimal, sin ceros iniciales innecesarios
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setAmount(value);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -68,7 +76,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
       paymentMethod,
       observations: observations.trim(),
       date: now.toISOString().split('T')[0],
-      time: now.toLocaleTimeString('es-AR'),
+      time: now.toLocaleTimeString('es-AR', { hour12: false }),
       userId: user.id,
       userName: user.name
     };
@@ -151,7 +159,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ cashRegisterId, onAdd
               step="0.01"
               placeholder="0.00"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={handleAmountChange}
               className="glass-effect border-0 text-slate-900 dark:text-slate-100 shadow-soft h-14 rounded-2xl transition-smooth hover:shadow-lg focus:shadow-xl text-lg font-semibold"
               required
             />
