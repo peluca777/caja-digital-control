@@ -26,7 +26,7 @@ const cardVariants = {
     opacity: 1, 
     y: 0, 
     scale: 1,
-    transition: { duration: 0.3, ease: "easeOut" }
+    transition: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }
   }
 };
 
@@ -116,48 +116,49 @@ const Dashboard: React.FC<DashboardProps> = ({ stats }) => {
           const IconComponent = stat.icon;
           return (
             <motion.div key={stat.title} variants={cardVariants}>
-              <Card 
-                className="glass-effect border-0 card-shadow dark:card-shadow transition-all-smooth rounded-2xl sm:rounded-3xl overflow-hidden group cursor-pointer"
+              <motion.div
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                  <CardTitle className="text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                    {stat.title}
-                  </CardTitle>
-                  <motion.div 
-                    className={`h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-gradient-to-r ${stat.bgGradient} flex items-center justify-center card-shadow`}
-                    whileHover={{ rotate: 5, scale: 1.1 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                  </motion.div>
-                </CardHeader>
-                <CardContent className="pb-4 sm:pb-6">
-                  <motion.div 
-                    className={`text-lg sm:text-3xl font-bold ${stat.color} mb-2 sm:mb-3`}
-                    initial={{ scale: 0.8 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: index * 0.1 + 0.3, duration: 0.3 }}
-                  >
-                    {stat.value}
-                  </motion.div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
-                      {stat.description}
-                    </p>
-                    {stat.trend && (
-                      <span className={`text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl ${
-                        stat.trend.startsWith('+') 
-                          ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-100/80 dark:bg-emerald-900/30' 
-                          : 'text-red-700 dark:text-red-400 bg-red-100/80 dark:bg-red-900/30'
-                      } card-shadow`}>
-                        {stat.trend}
-                      </span>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                <Card className="glass-effect border-0 card-shadow dark:card-shadow transition-all-smooth rounded-2xl sm:rounded-3xl overflow-hidden group cursor-pointer">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      {stat.title}
+                    </CardTitle>
+                    <motion.div 
+                      className={`h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-gradient-to-r ${stat.bgGradient} flex items-center justify-center card-shadow`}
+                      whileHover={{ rotate: 5, scale: 1.1 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                    </motion.div>
+                  </CardHeader>
+                  <CardContent className="pb-4 sm:pb-6">
+                    <motion.div 
+                      className={`text-lg sm:text-3xl font-bold ${stat.color} mb-2 sm:mb-3`}
+                      initial={{ scale: 0.8 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: index * 0.1 + 0.3, duration: 0.3 }}
+                    >
+                      {stat.value}
+                    </motion.div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
+                        {stat.description}
+                      </p>
+                      {stat.trend && (
+                        <span className={`text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl ${
+                          stat.trend.startsWith('+') 
+                            ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-100/80 dark:bg-emerald-900/30' 
+                            : 'text-red-700 dark:text-red-400 bg-red-100/80 dark:bg-red-900/30'
+                        } card-shadow`}>
+                          {stat.trend}
+                        </span>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </motion.div>
           );
         })}

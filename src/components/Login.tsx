@@ -20,7 +20,7 @@ const containerVariants = {
     scale: 1,
     transition: {
       duration: 0.4,
-      ease: "easeOut",
+      ease: [0.4, 0.0, 0.2, 1],
       staggerChildren: 0.1
     }
   }
@@ -31,7 +31,7 @@ const itemVariants = {
   visible: { 
     opacity: 1, 
     y: 0,
-    transition: { duration: 0.3, ease: "easeOut" }
+    transition: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }
   }
 };
 
@@ -59,7 +59,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         transition={{ 
           duration: 4, 
           repeat: Infinity,
-          ease: "easeInOut"
+          ease: [0.4, 0.0, 0.6, 1]
         }}
       />
       <motion.div 
@@ -71,7 +71,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         transition={{ 
           duration: 5, 
           repeat: Infinity,
-          ease: "easeInOut",
+          ease: [0.4, 0.0, 0.6, 1],
           delay: 1
         }}
       />
@@ -109,7 +109,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   transition={{ 
                     duration: 2, 
                     repeat: Infinity,
-                    ease: "easeInOut"
+                    ease: [0.4, 0.0, 0.6, 1]
                   }}
                 >
                   <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-blue-200 absolute top-1 sm:top-2 right-1 sm:right-2" />
@@ -160,16 +160,19 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </motion.div>
             
             <motion.div variants={itemVariants}>
-              <Button 
-                onClick={handleLogin} 
-                disabled={!selectedUserId} 
-                className="w-full h-12 sm:h-14 gradient-primary disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white font-bold rounded-xl sm:rounded-2xl card-shadow disabled:opacity-50 disabled:cursor-not-allowed transition-all-smooth" 
+              <motion.div
                 whileHover={selectedUserId ? { scale: 1.02, y: -1 } : {}}
                 whileTap={selectedUserId ? { scale: 0.98 } : {}}
               >
-                <LogIn className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
-                Iniciar Sesión Segura
-              </Button>
+                <Button 
+                  onClick={handleLogin} 
+                  disabled={!selectedUserId} 
+                  className="w-full h-12 sm:h-14 gradient-primary disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white font-bold rounded-xl sm:rounded-2xl card-shadow disabled:opacity-50 disabled:cursor-not-allowed transition-all-smooth"
+                >
+                  <LogIn className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+                  Iniciar Sesión Segura
+                </Button>
+              </motion.div>
             </motion.div>
             
             <motion.div 

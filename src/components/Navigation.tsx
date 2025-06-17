@@ -26,7 +26,7 @@ const itemVariants = {
   visible: { 
     opacity: 1, 
     y: 0,
-    transition: { duration: 0.3, ease: "easeOut" }
+    transition: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }
   }
 };
 
@@ -54,35 +54,38 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, user
         
         return (
           <motion.div key={item.id} variants={itemVariants}>
-            <Button
-              variant={isActive ? 'default' : 'outline'}
-              onClick={() => onViewChange(item.id)}
-              size="sm"
-              className={`
-                transition-all-smooth rounded-2xl sm:rounded-3xl px-4 sm:px-8 py-3 sm:py-4 h-auto relative overflow-hidden group card-shadow
-                ${isActive 
-                  ? 'gradient-primary text-white border-0' 
-                  : 'glass-effect border-0 text-slate-900 dark:text-slate-100 hover:card-shadow-hover'
-                }
-              `}
+            <motion.div
               whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}
             >
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <IconComponent className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                  isActive ? 'text-white' : 'text-slate-600 dark:text-slate-400'
-                }`} />
-                <span className="font-bold text-xs sm:text-sm">{item.label}</span>
-              </div>
-              {isActive && (
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent pointer-events-none"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.2 }}
-                />
-              )}
-            </Button>
+              <Button
+                variant={isActive ? 'default' : 'outline'}
+                onClick={() => onViewChange(item.id)}
+                size="sm"
+                className={`
+                  transition-all-smooth rounded-2xl sm:rounded-3xl px-4 sm:px-8 py-3 sm:py-4 h-auto relative overflow-hidden group card-shadow
+                  ${isActive 
+                    ? 'gradient-primary text-white border-0' 
+                    : 'glass-effect border-0 text-slate-900 dark:text-slate-100 hover:card-shadow-hover'
+                  }
+                `}
+              >
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <IconComponent className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                    isActive ? 'text-white' : 'text-slate-600 dark:text-slate-400'
+                  }`} />
+                  <span className="font-bold text-xs sm:text-sm">{item.label}</span>
+                </div>
+                {isActive && (
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                  />
+                )}
+              </Button>
+            </motion.div>
           </motion.div>
         );
       })}
