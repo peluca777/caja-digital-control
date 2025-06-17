@@ -74,6 +74,21 @@ export const addTransaction = (transaction: Transaction) => {
   saveTransactions(transactions);
 };
 
+export const updateTransaction = (id: string, updates: Partial<Transaction>) => {
+  const transactions = getTransactions();
+  const index = transactions.findIndex(t => t.id === id);
+  if (index !== -1) {
+    transactions[index] = { ...transactions[index], ...updates };
+    saveTransactions(transactions);
+  }
+};
+
+export const deleteTransaction = (id: string) => {
+  const transactions = getTransactions();
+  const filteredTransactions = transactions.filter(t => t.id !== id);
+  saveTransactions(filteredTransactions);
+};
+
 // Utility functions
 export const getTodaysCashRegister = (userId?: string): CashRegister | null => {
   const today = new Date().toISOString().split('T')[0];

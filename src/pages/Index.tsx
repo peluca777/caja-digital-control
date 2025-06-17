@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import Login from '@/components/Login';
@@ -15,6 +16,7 @@ import {
   addCashRegister,
   updateCashRegister,
   addTransaction,
+  updateTransaction,
   getCashRegisters,
   getTransactions
 } from '@/lib/storage';
@@ -175,6 +177,11 @@ const Index = () => {
     loadData();
   };
 
+  const handleUpdateTransaction = (updatedTransaction: Transaction) => {
+    updateTransaction(updatedTransaction.id, updatedTransaction);
+    loadData();
+  };
+
   const handleExport = (format: 'excel' | 'pdf') => {
     toast({
       title: "Función en desarrollo",
@@ -222,6 +229,7 @@ const Index = () => {
           <TransactionHistory
             transactions={transactions}
             onExport={handleExport}
+            onUpdateTransaction={handleUpdateTransaction}
           />
         );
       
@@ -235,6 +243,7 @@ const Index = () => {
           <TransactionHistory
             transactions={filteredTransactions}
             onExport={handleExport}
+            onUpdateTransaction={handleUpdateTransaction}
           />
         );
       
