@@ -19,8 +19,7 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
       opacity: 1, 
       y: 0,
       transition: { 
-        duration: 0.5, 
-        ease: "easeOut"
+        duration: 0.5
       }
     }
   };
@@ -32,8 +31,7 @@ const Layout: React.FC<LayoutProps> = ({ children, onLogout }) => {
       y: 0,
       transition: { 
         duration: 0.5, 
-        delay: 0.1, 
-        ease: "easeOut"
+        delay: 0.1
       }
     }
   };

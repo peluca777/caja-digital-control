@@ -45,7 +45,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       scale: 1,
       transition: { 
         duration: 0.4, 
-        ease: "easeOut", 
         staggerChildren: 0.1 
       }
     }
@@ -57,8 +56,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       opacity: 1, 
       y: 0,
       transition: { 
-        duration: 0.3, 
-        ease: "easeOut"
+        duration: 0.3
       }
     }
   };
@@ -75,7 +73,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <motion.div
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            transition={{ duration: 0.6 }}
             className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg"
           >
             <span className="text-3xl">💰</span>
