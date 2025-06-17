@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { User } from '@/lib/types';
-import { getUsers, setCurrentUser } from '@/lib/storage';
-import { LogIn, User as UserIcon, Shield } from 'lucide-react';
+import { setCurrentUser } from '@/lib/storage';
+import { LogIn, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface LoginProps {
@@ -15,7 +15,6 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const [selectedUser, setSelectedUser] = useState<string>('');
   const [customName, setCustomName] = useState<string>('');
   const { toast } = useToast();
 
@@ -28,7 +27,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       role: 'Supervisor'
     };
 
-    // Guardar el nombre personalizado en localStorage
     localStorage.setItem('adminName', finalName);
     
     setCurrentUser(adminUser);
@@ -47,7 +45,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       scale: 1,
       transition: { 
         duration: 0.4, 
-        ease: [0.4, 0.0, 0.2, 1], 
+        ease: "easeOut", 
         staggerChildren: 0.1 
       }
     }
@@ -60,7 +58,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       y: 0,
       transition: { 
         duration: 0.3, 
-        ease: [0.4, 0.0, 0.2, 1] 
+        ease: "easeOut"
       }
     }
   };
@@ -77,7 +75,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <motion.div
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
-            transition={{ duration: 0.6, ease: [0.4, 0.0, 0.2, 1] }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
             className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg"
           >
             <span className="text-3xl">💰</span>
