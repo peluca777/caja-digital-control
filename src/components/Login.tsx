@@ -20,7 +20,7 @@ const containerVariants = {
     scale: 1,
     transition: {
       duration: 0.4,
-      ease: [0.4, 0.0, 0.2, 1],
+      ease: "easeOut",
       staggerChildren: 0.1
     }
   }
@@ -31,7 +31,7 @@ const itemVariants = {
   visible: { 
     opacity: 1, 
     y: 0,
-    transition: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }
+    transition: { duration: 0.3, ease: "easeOut" }
   }
 };
 
@@ -59,7 +59,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         transition={{ 
           duration: 4, 
           repeat: Infinity,
-          ease: [0.4, 0.0, 0.6, 1]
+          ease: "easeInOut"
         }}
       />
       <motion.div 
@@ -71,7 +71,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         transition={{ 
           duration: 5, 
           repeat: Infinity,
-          ease: [0.4, 0.0, 0.6, 1],
+          ease: "easeInOut",
           delay: 1
         }}
       />
@@ -109,7 +109,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   transition={{ 
                     duration: 2, 
                     repeat: Infinity,
-                    ease: [0.4, 0.0, 0.6, 1]
+                    ease: "easeInOut"
                   }}
                 >
                   <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-blue-200 absolute top-1 sm:top-2 right-1 sm:right-2" />
