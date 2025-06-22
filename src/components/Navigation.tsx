@@ -25,7 +25,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, user
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }
+      transition: { duration: 0.3 }
     }
   };
 
@@ -63,8 +63,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange, user
                     ? 'bg-blue-600 text-white shadow-lg hover:bg-blue-700' 
                     : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
               >
                 <Icon className="w-4 h-4" />
                 <span className="text-sm font-medium">{item.label}</span>
